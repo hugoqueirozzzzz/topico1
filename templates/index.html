@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Tópico 1 — EBD em Foco</title>
+  <style>
+    :root { --roxo: #6b3fa0; --roxo-escuro: #4a2b70; --cinza: #f4f4f6; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--cinza);
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+    header {
+      background: var(--roxo);
+      color: white;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    header h1 { margin: 0; font-size: 1.4rem; }
+    header p { margin: 6px 0 0; opacity: 0.9; font-size: 0.95rem; }
+    main {
+      max-width: 560px;
+      margin: 32px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    label { display: block; font-weight: 600; margin-bottom: 8px; margin-top: 20px; }
+    input[type="file"] {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: 1px dashed #bbb;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .tipo-opcoes { display: flex; gap: 12px; }
+    .tipo-opcoes label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      margin: 0;
+    }
+    .tipo-opcoes input { accent-color: var(--roxo); }
+    button {
+      margin-top: 24px;
+      width: 100%;
+      background: var(--roxo);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: var(--roxo-escuro); }
+    .flash {
+      background: #fde2e2;
+      color: #9b1c1c;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+    }
+    .regras {
+      margin-top: 28px;
+      font-size: 0.85rem;
+      color: #555;
+      background: #f7f4fb;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .regras summary { cursor: pointer; font-weight: 600; color: var(--roxo-escuro); }
+    .regras ul { margin: 10px 0 0; padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Gerador de Tópico 1</h1>
+    <p>EBD em Foco — envie a lição completa e receba o slide de amostra pronto</p>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}
+          <div class="flash">{{ m }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('gerar') }}" method="post" enctype="multipart/form-data">
+      <label for="licao">Arquivo da lição completa (.pptx)</label>
+      <input type="file" id="licao" name="licao" accept=".pptx" required>
+
+      <label>Tipo da lição</label>
+      <div class="tipo-opcoes">
+        <label><input type="radio" name="tipo" value="jovens" required> Jovens</label>
+        <label><input type="radio" name="tipo" value="adultos" required> Adultos</label>
+      </div>
+
+      <button type="submit">Gerar Tópico 1 (PPTX + PDF)</button>
+    </form>
+
+    <details class="regras">
+      <summary>Como o corte é feito</summary>
+      <ul>
+        <li>Tudo antes do bumper "I. ..." é mantido (capa, resumo, objetivos, texto bíblico, introdução).</li>
+        <li>O Tópico I inteiro é mantido, com todo o conteúdo.</li>
+        <li>Dos demais tópicos (II, III...), só o slide de título é mantido.</li>
+        <li>Conclusão, revisão e o restante são descartados.</li>
+        <li>O pacote de slides promocionais fixo é anexado ao final.</li>
+        <li>A capa recebe o carimbo "SLIDE DE AMOSTRA / APENAS TÓPICO I".</li>
+      </ul>
+    </details>
+  </main>
+</body>
+</html>
