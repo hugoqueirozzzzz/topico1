@@ -18,11 +18,14 @@ Regra (validada contra os exemplos reais Sansão / Paulo, jovens / adultos):
 6. Na capa (slide 0), a caixa de texto do nome do professor é substituída
    por "SLIDE DE AMOSTRA / APENAS TÓPICO I".
 """
+import copy
 import re
 import subprocess
 from pathlib import Path
 
 from pptx import Presentation
+from pptx.oxml.ns import qn
+from pptx.oxml.xmlchemy import OxmlElement
 from pptx.util import Emu
 
 from slide_copy import append_slide, delete_slide
@@ -65,14 +68,43 @@ def _is_bumper(slide) -> bool:
 
 
 def _stamp_sample_label(slide) -> bool:
-    """Troca a caixa de texto 'Nome do Professor' pelo aviso de amostra."""
+    """Troca a caixa de texto 'Nome do Professor' pelo aviso de amostra,
+    preservando exatamente a formatação original (fonte, tamanho, cor,
+    negrito, alinhamento) — apenas o texto muda, quebrado em duas linhas."""
     for shape in slide.shapes:
         if not shape.has_text_frame:
             continue
-        if shape.text_frame.text.strip().lower() in TITLE_SLOT_TEXTS:
-            shape.text_frame.text = SAMPLE_LABEL
-            shape.height = SAMPLE_LABEL_HEIGHT
-            return True
+        if shape.text_frame.text.strip().lower() not in TITLE_SLOT_TEXTS:
+            continue
+
+        txBody = shape.text_frame._txBody
+        paragraphs = txBody.findall(qn("a:p"))
+        if not paragraphs:
+            return False
+
+        first_p = paragraphs[0]
+        runs = first_p.findall(qn("a:r"))
+        template_rPr = runs[0].find(qn("a:rPr")) if runs else None
+        template_pPr = first_p.find(qn("a:pPr"))
+
+        for p in paragraphs:
+            txBody.remove(p)
+
+        for line in SAMPLE_LABEL.split("\n"):
+            new_p = OxmlElement("a:p")
+            if template_pPr is not None:
+                new_p.append(copy.deepcopy(template_pPr))
+            new_r = OxmlElement("a:r")
+            if template_rPr is not None:
+                new_r.append(copy.deepcopy(template_rPr))
+            new_t = OxmlElement("a:t")
+            new_t.text = line
+            new_r.append(new_t)
+            new_p.append(new_r)
+            txBody.append(new_p)
+
+        shape.height = SAMPLE_LABEL_HEIGHT
+        return True
     return False
 
 
