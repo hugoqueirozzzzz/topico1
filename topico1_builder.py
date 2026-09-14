@@ -175,7 +175,12 @@ def build_topico1(source_path: str, tipo: str, output_pptx_path: str) -> dict:
 
 def convert_pptx_to_pdf(pptx_path: str, out_dir: str, timeout: int = 120) -> str:
     """Converte um .pptx em .pdf usando o LibreOffice headless.
-    Retorna o caminho do PDF gerado."""
+    Retorna o caminho do PDF gerado.
+
+    NÃO é chamada pelo app atualmente (a exportação em PDF fica por
+    conta do PowerPoint, para preservar fielmente as fontes/formatação
+    originais). Fica aqui caso você queira reativar no futuro — nesse
+    caso, volte a instalar o LibreOffice no Dockerfile."""
     pptx_path = Path(pptx_path)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)

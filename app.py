@@ -9,7 +9,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-from topico1_builder import build_topico1, convert_pptx_to_pdf
+from topico1_builder import build_topico1
 
 BASE_DIR = Path(__file__).parent
 UPLOAD_DIR = BASE_DIR / "tmp_uploads"
@@ -77,7 +77,6 @@ def gerar():
 
     try:
         info = build_topico1(str(src_path), tipo, str(out_pptx_path))
-        pdf_path = convert_pptx_to_pdf(str(out_pptx_path), str(job_output_dir))
     except Exception as exc:
         shutil.rmtree(job_upload_dir, ignore_errors=True)
         shutil.rmtree(job_output_dir, ignore_errors=True)
@@ -91,7 +90,6 @@ def gerar():
         "resultado.html",
         job_id=job_id,
         pptx_name=Path(out_pptx_path).name,
-        pdf_name=Path(pdf_path).name,
         info=info,
     )
 
